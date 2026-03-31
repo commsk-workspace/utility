@@ -1,0 +1,41 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Document {
+  id           String    @id @default(cuid())
+  type         String    // "mermaid", "markdown", "json", "sql", etc.
+  title        String?
+  content      String    @db.Text
+  language     String?   // programming language for syntax highlighting
+  viewPassword String?   // bcrypt hashed password for viewing (optional)
+  editPassword String?   // bcrypt hashed password for editing (optional)
+  isPublic     Boolean   @default(true) // public = anyone can view without password
+  expiresAt    DateTime? // when this document expires
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  versions     Version[]
+
+  @@index([createdAt])
+  @@index([expiresAt])
+}
+
+model Version {
+  id         String   @id @default(cuid())
+  documentId String
+  document   Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  content    String   @db.Text
+  createdAt  DateTime @default(now())
+  createdBy  String?  // IP address or identifier
+
+  @@index([documentId])
+  @@index([createdAt])
+}
