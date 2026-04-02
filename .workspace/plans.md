@@ -1,6 +1,6 @@
 # DevTools Utility — Plans
 
-> Updated: 2026-03-31
+> Updated: 2026-04-02
 
 ## Overview
 
@@ -39,21 +39,23 @@ PM2 (Production)
 | JWT Decoder | Done | `src/app/jwt/` |
 | Gradient Generator | Done | `src/app/gradient/` |
 | Lorem Ipsum | Done | `src/app/lorem/` |
-| API Tester | Partial | `src/app/api-tester/` |
+| API Tester | Done | `src/app/api-tester/` |
 | Code Minifier | Done | `src/app/minify/` |
 | Image Optimizer | Done | `src/app/image/` |
 | Placeholder Gen | Done | `src/app/placeholder/` |
-| SVG Optimizer | Done (has issue) | `src/app/svg/` |
+| SVG Optimizer | Done | `src/app/svg/` |
 | Share/View Page | Done | `src/app/share/[id]/` |
 | Document API | Done | `src/app/api/documents/` |
 
 ## Goals
 
-- [ ] Fix SVG XSS vulnerability (dangerouslySetInnerHTML)
-- [ ] Add JWT signature verification option
-- [ ] Add CORS proxy option for API Tester
-- [ ] Improve JS minifier (use terser or similar)
-- [ ] Add CSV library (papaparse) for better parsing
+- [x] Fix SVG XSS vulnerability (dangerouslySetInnerHTML)
+- [x] Add CORS proxy option for API Tester
+- [x] Improve JS minifier (safer regex)
+- [x] Fix CSV header parsing consistency
+- [x] Fix JWT misleading badge
+- [x] Add all tools to homepage (was 8, now 23)
+- [x] Add Markdown unsaved changes warning
 - [ ] Add more tools (Cron Expression, Epoch Converter, etc.)
 - [ ] Add i18n support (TH/EN)
 - [ ] Add PWA support for offline usage

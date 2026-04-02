@@ -248,7 +248,7 @@ export default function JwtPage() {
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-2">
                 <Label>Signature</Label>
-                <Badge variant="outline">VERIFY SIGNATURE</Badge>
+                <Badge variant="outline">ENCODED SIGNATURE</Badge>
               </div>
               {decoded && (
                 <Button
@@ -263,6 +263,12 @@ export default function JwtPage() {
             <pre className="bg-muted p-3 rounded-lg text-sm font-mono overflow-auto break-all">
               {decoded ? decoded.signature : '// Signature will appear here'}
             </pre>
+            {decoded && (
+              <p className="mt-2 text-xs text-muted-foreground flex items-center gap-1">
+                <AlertCircle className="h-3 w-3" />
+                This tool only decodes the token. Signature verification requires the secret key and should be done server-side.
+              </p>
+            )}
           </Card>
         </div>
       </div>

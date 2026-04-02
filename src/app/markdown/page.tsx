@@ -201,6 +201,11 @@ export default function MarkdownPage() {
 
   const handleTemplateChange = (template: string) => {
     const newCode = markdownTemplates[template as keyof typeof markdownTemplates] || '';
+    if (code.trim() && code !== markdownTemplates.readme) {
+      if (!window.confirm('Current content will be replaced. Continue?')) {
+        return;
+      }
+    }
     setCode(newCode);
     markdownHistory.addToHistory(newCode, `Template: ${template}`);
   };

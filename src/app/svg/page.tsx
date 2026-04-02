@@ -13,9 +13,27 @@ import {
   Trash2,
   ArrowRight,
   Download,
+  AlertTriangle,
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { copyToClipboard, downloadFile } from '@/lib/utils';
+
+// [system] Sanitize SVG to prevent XSS via event handlers and script tags
+function sanitizeSvg(svg: string): string {
+  // Remove all event handler attributes (on*)
+  let clean = svg.replace(/\s+on\w+\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]*)/gi, '');
+  // Remove <script> tags and their content
+  clean = clean.replace(/<script[\s\S]*?<\/script>/gi, '');
+  clean = clean.replace(/<script[^>]*\/>/gi, '');
+  // Remove javascript: URIs in href/xlink:href/src attributes
+  clean = clean.replace(/(href|src)\s*=\s*["']?\s*javascript:[^"'>]*/gi, '$1=""');
+  // Remove <foreignObject> (can embed arbitrary HTML)
+  clean = clean.replace(/<foreignObject[\s\S]*?<\/foreignObject>/gi, '');
+  clean = clean.replace(/<foreignObject[^>]*\/>/gi, '');
+  // Remove data: URIs in href (potential XSS vector)
+  clean = clean.replace(/(href)\s*=\s*["']?\s*data:[^"'>]*/gi, '$1=""');
+  return clean;
+}
 
 export default function SvgPage() {
   const { toast } = useToast();
@@ -233,7 +251,7 @@ export default function SvgPage() {
               <Label className="mb-2 block">Preview</Label>
               <div
                 className="border rounded-lg p-4 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCI+PHJlY3QgZmlsbD0iI2ZmZiIgd2lkdGg9IjEwIiBoZWlnaHQ9IjEwIi8+PHJlY3QgZmlsbD0iI2ZmZiIgeD0iMTAiIHk9IjEwIiB3aWR0aD0iMTAiIGhlaWdodD0iMTAiLz48cmVjdCBmaWxsPSIjY2NjIiB4PSIxMCIgd2lkdGg9IjEwIiBoZWlnaHQ9IjEwIi8+PHJlY3QgZmlsbD0iI2NjYyIgeT0iMTAiIHdpZHRoPSIxMCIgaGVpZ2h0PSIxMCIvPjwvc3ZnPg==')]"
-                dangerouslySetInnerHTML={{ __html: output }}
+                dangerouslySetInnerHTML={{ __html: sanitizeSvg(output) }}
               />
             </div>
           )}

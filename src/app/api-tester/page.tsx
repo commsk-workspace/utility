@@ -16,6 +16,7 @@ import {
   X,
   Loader2,
   Clock,
+  AlertTriangle,
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { copyToClipboard } from '@/lib/utils';
@@ -54,6 +55,7 @@ export default function ApiTesterPage() {
   const [body, setBody] = useState('');
   const [response, setResponse] = useState<ApiResponse | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [useProxy, setUseProxy] = useState(false);
 
   const addHeader = () => {
     setHeaders([...headers, { key: '', value: '', enabled: true }]);
@@ -99,7 +101,8 @@ export default function ApiTesterPage() {
         options.body = body;
       }
 
-      const res = await fetch(url, options);
+      const targetUrl = useProxy ? `/api/proxy?url=${encodeURIComponent(url)}` : url;
+      const res = await fetch(targetUrl, options);
       const endTime = performance.now();
 
       const responseHeaders: Record<string, string> = {};
@@ -134,17 +137,23 @@ export default function ApiTesterPage() {
       });
     } catch (error) {
       const endTime = performance.now();
+      const errorMessage = error instanceof Error ? error.message : 'Request failed';
+      const isCorsError = errorMessage === 'Failed to fetch' || errorMessage.includes('CORS');
+      const displayMessage = isCorsError && !useProxy
+        ? 'CORS error: The target server does not allow cross-origin requests from the browser. Try enabling the "Use Proxy" option above.'
+        : errorMessage;
+
       setResponse({
         status: 0,
-        statusText: 'Error',
+        statusText: isCorsError ? 'CORS Error' : 'Error',
         headers: {},
-        body: error instanceof Error ? error.message : 'Request failed',
+        body: displayMessage,
         time: Math.round(endTime - startTime),
       });
 
       toast({
-        title: 'Request failed',
-        description: error instanceof Error ? error.message : 'Unknown error',
+        title: isCorsError ? 'CORS Error' : 'Request failed',
+        description: isCorsError && !useProxy ? 'Enable "Use Proxy" to bypass CORS restrictions' : errorMessage,
         variant: 'destructive',
       });
     } finally {
@@ -179,6 +188,27 @@ export default function ApiTesterPage() {
           </p>
         </div>
       </div>
+
+      {/* CORS Info Banner */}
+      <Card className="p-3 mb-4 border-amber-500/30 bg-amber-500/5">
+        <div className="flex items-start gap-2">
+          <AlertTriangle className="h-4 w-4 text-amber-500 mt-0.5 shrink-0" />
+          <div className="flex-1">
+            <p className="text-sm text-muted-foreground">
+              Browser CORS policy may block requests to external APIs. Enable <strong>Use Proxy</strong> to route requests through the server.
+            </p>
+          </div>
+          <label className="flex items-center gap-2 shrink-0 cursor-pointer">
+            <span className="text-sm font-medium">Use Proxy</span>
+            <input
+              type="checkbox"
+              checked={useProxy}
+              onChange={(e) => setUseProxy(e.target.checked)}
+              className="rounded"
+            />
+          </label>
+        </div>
+      </Card>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Request */}

@@ -34,7 +34,7 @@ export default function CsvPage() {
         throw new Error('Empty CSV');
       }
 
-      const headers = lines[0].split(delimiter).map(h => h.trim().replace(/^"|"$/g, ''));
+      const headers = parseCSVLine(lines[0], delimiter);
       const result = [];
 
       for (let i = 1; i < lines.length; i++) {

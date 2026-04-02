@@ -58,20 +58,24 @@ export default function MinifyPage() {
     // Simple JS minification (for basic use cases)
     // For production, use a proper minifier like terser
     return code
-      // Remove single-line comments (but not URLs)
-      .replace(/(?<!:)\/\/.*$/gm, '')
       // Remove multi-line comments
       .replace(/\/\*[\s\S]*?\*\//g, '')
+      // Remove single-line comments (but not URLs like http://)
+      .replace(/(^|[^:])\/\/.*$/gm, '$1')
       // Remove leading/trailing whitespace per line
       .replace(/^\s+|\s+$/gm, '')
-      // Collapse multiple newlines
+      // Collapse multiple newlines into single newline
       .replace(/\n+/g, '\n')
-      // Remove newlines (basic - doesn't handle all cases)
-      .replace(/\n/g, '')
+      // Replace newlines with semicolons where safe (between statements)
+      .replace(/\n/g, ';')
+      // Remove redundant semicolons
+      .replace(/;+/g, ';')
+      .replace(/;}/g, '}')
+      .replace(/{;/g, '{')
       // Collapse multiple spaces
       .replace(/\s{2,}/g, ' ')
-      // Remove spaces around operators (basic)
-      .replace(/\s*([=+\-*/<>!&|,;{}()[\]])\s*/g, '$1')
+      // Remove spaces around punctuation (but keep spaces around keywords)
+      .replace(/\s*([{},;:()[\]])\s*/g, '$1')
       .trim();
   };
 
